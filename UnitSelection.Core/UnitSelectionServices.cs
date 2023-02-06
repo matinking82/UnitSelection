@@ -20,7 +20,8 @@ namespace UnitSelection.Core
         public static UnitSelectionResultDto SelectUnits(RequestUnitSelectDto request)
         {
 
-            UnitSelectionResultDto result = new UnitSelectionResultDto();
+            
+            List<IEnumerable<Unit>> unitGoups = new List<IEnumerable<Unit>>();
 
             int subjectsCount = request.Subjects.Count();
 
@@ -40,7 +41,7 @@ namespace UnitSelection.Core
 
                 if (IsUnitsOk(units))
                 {
-                    result.UnitGroups.Add(units);
+                    unitGoups.Add(units.AsEnumerable());
                 }
 
                 bool IsInc = true;
@@ -62,8 +63,10 @@ namespace UnitSelection.Core
                     }
                 }
             }
-
-            return result;
+            return new UnitSelectionResultDto()
+            {
+                UnitGroups = unitGoups
+            };
         }
 
         private static bool IsUnitsOk(IEnumerable<Unit> units)
@@ -94,7 +97,7 @@ namespace UnitSelection.Core
 
     public record UnitSelectionResultDto
     {
-        public List<IEnumerable<Unit>> UnitGroups { get; set; } = new List<IEnumerable<Unit>>();
+        public List<IEnumerable<Unit>> UnitGroups { get; set; }
     }
 
     public record Subject
