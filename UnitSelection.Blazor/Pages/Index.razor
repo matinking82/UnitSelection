@@ -13,7 +13,7 @@
         <div class="alert alert-dark d-inline-block m-2 p-4">
             <h2>@item.Name</h2>
             <button @onclick="() => { LoadASave(item.Id); }" class="btn btn-primary btn-lg m-2 p-2">
-                Load @item.Id
+                Load
             </button>
             <button @onclick="async () => { await DeleteASave(item.Id); }" class="btn btn-danger btn-lg m-2 p-2">
                 Delete
@@ -257,7 +257,7 @@ else
             return;
         }
 
-        subjects = save.Subjects;
+        subjects = new List<Subject>(save.Subjects);
 
         LoadScreen = false;
     }
@@ -290,7 +290,7 @@ else
                 {
                     Id = id,
                     Name = name,
-                    Subjects = subjects
+                    Subjects = new List<Subject>(subjects)
                 };
 
             SavedItems.Add(saveItem);
@@ -323,7 +323,7 @@ else
     {
         if (SavedItems.Any())
         {
-            subjects = SavedItems.Last().Subjects;
+            subjects = new List<Subject>(SavedItems.Last().Subjects);
         }
         else
         {
