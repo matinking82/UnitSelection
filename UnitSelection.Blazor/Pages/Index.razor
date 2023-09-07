@@ -1,185 +1,224 @@
 ﻿@page "/"
+@using UnitSelection.Blazor.Types
+@inject ILocalStorageService _localstorage;
+@inject IJSRuntime JsRuntime
 
 <PageTitle>UnitSelection</PageTitle>
-
-@if (SelectionStarted)
+@if (LoadScreen)
 {
-    <header class="show-table-header">
-        <h4>Table @unitGroupPage of @UnitGroups.Count()</h4>
-        <button @onclick="PrevPage" class="btn btn-primary">Previous</button>
-        <button @onclick="NextPage" class="btn btn-success">Next</button>
-    </header>
-    <table class="table table-bordered my-table">
-        <thead>
-            <tr>
-                <th scope="col"></th>
-                <th scope="col">Sat</th>
-                <th scope="col">Sun</th>
-                <th scope="col">Mon</th>
-                <th scope="col">Tue</th>
-                <th scope="col">Wed</th>
-                <th scope="col">Thu</th>
-                <th scope="col">Fri</th>
-            </tr>
-        </thead>
-        <tbody>
+    <h3>Your saves:</h3>
 
-            <tr>
-                <td>8</td>
-                <td>@tableItems[0,0]</td>
-                <td>@tableItems[1,0]</td>
-                <td>@tableItems[2,0]</td>
-                <td>@tableItems[3,0]</td>
-                <td>@tableItems[4,0]</td>
-                <td></td>
-                <td></td>
-
-            </tr>
-            <tr>
-                <td>10</td>
-                <td>@tableItems[0,1]</td>
-                <td>@tableItems[1,1]</td>
-                <td>@tableItems[2,1]</td>
-                <td>@tableItems[3,1]</td>
-                <td>@tableItems[4,1]</td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>13</td>
-                <td>@tableItems[0,2]</td>
-                <td>@tableItems[1,2]</td>
-                <td>@tableItems[2,2]</td>
-                <td>@tableItems[3,2]</td>
-                <td>@tableItems[4,2]</td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>15</td>
-                <td>@tableItems[0,3]</td>
-                <td>@tableItems[1,3]</td>
-                <td>@tableItems[2,3]</td>
-                <td>@tableItems[3,3]</td>
-                <td>@tableItems[4,3]</td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>17</td>
-                <td>@tableItems[0,4]</td>
-                <td>@tableItems[1,4]</td>
-                <td>@tableItems[2,4]</td>
-                <td>@tableItems[3,4]</td>
-                <td>@tableItems[4,4]</td>
-                <td></td>
-                <td></td>
-            </tr>
-        </tbody>
-    </table>
-    <button class="btn btn-danger btn-lg" @onclick="btnBackClicked">Back</button>
+    @foreach (var item in SavedItems)
+    {
+        <div class="alert alert-dark d-inline-block m-2 p-4">
+            <h2>@item.Name</h2>
+            <button @onclick="() => { LoadASave(item.Id); }" class="btn btn-primary btn-lg m-2 p-2">
+                Load @item.Id
+            </button>
+            <button @onclick="async () => { await DeleteASave(item.Id); }" class="btn btn-danger btn-lg m-2 p-2">
+                Delete
+            </button>
+        </div>
+    }
+    <hr />
+    <br />
+    <button class="btn btn-danger btn-lg p-2" @onclick="() => { LoadScreen=false;}">
+        Back
+    </button>
 }
 else
 {
-    @if (ShowAddUnits)
+    @if (SelectionStarted)
     {
-        <h1>Add Units For @SubjectName</h1>
-        <button @onclick="btnCompleteClicked" class="btn btn-success btn-lg">
-            Complete
-        </button>
-        <br />
+        <header class="show-table-header">
+            <h4>Table @unitGroupPage of @UnitGroups.Count()</h4>
+            <button @onclick="PrevPage" class="btn btn-primary">Previous</button>
+            <button @onclick="NextPage" class="btn btn-success">Next</button>
+        </header>
+        <table class="table table-bordered my-table">
+            <thead>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col">Sat</th>
+                    <th scope="col">Sun</th>
+                    <th scope="col">Mon</th>
+                    <th scope="col">Tue</th>
+                    <th scope="col">Wed</th>
+                    <th scope="col">Thu</th>
+                    <th scope="col">Fri</th>
+                </tr>
+            </thead>
+            <tbody>
 
-        <div class="form-control add-unit-card">
-            <h2>New Unit</h2>
-            <input @bind="addingUnit.ProfName" class="form-control-lg" type="text" placeholder="Proffesor Name.." />
-            <br /><br />
-            <div class="form-control">
-                <label class="form-label">Day:</label>
-                <select class="form-select" @bind="SelectedDay">
-                    <option value="@(-1)">Select Day</option>
-                    <option value="@(0)">Saturday</option>
-                    <option value="@(1)">Sunday</option>
-                    <option value="@(2)">Monday</option>
-                    <option value="@(3)">Tuesday</option>
-                    <option value="@(4)">Wednesday</option>
-                </select><br />
+                <tr>
+                    <td>8</td>
+                    <td>@tableItems[0,0]</td>
+                    <td>@tableItems[1,0]</td>
+                    <td>@tableItems[2,0]</td>
+                    <td>@tableItems[3,0]</td>
+                    <td>@tableItems[4,0]</td>
+                    <td></td>
+                    <td></td>
 
-                <label class="form-label">Hour:</label>
-                <select class="form-select" @bind="SelectedHour">
-                    <option value="@(-1)">Select Hour</option>
-                    <option value="@(0)">8</option>
-                    <option value="@(1)">10</option>
-                    <option value="@(2)">13</option>
-                    <option value="@(3)">15</option>
-                    <option value="@(4)">17</option>
-                </select>
-                <br />
-                <button @onclick="btnAddDayClicked" class="btn btn-danger">Add Day</button>
-                <hr />
-                @foreach (var day in addingUnit.DayOfUnit)
-                {
-                    <button class="btn btn-warning" @onclick="() => ((List<UnitDay>)addingUnit.DayOfUnit).Remove(day)">@(BeutifyDay(day))</button>
-                }
-            </div>
-            <br />
-            <button class="btn btn-success" @onclick="btnAddUnitClicked">Add Unit</button>
-        </div>
-
-        <hr />
-        foreach (var unit in addingSubject.Units)
-        {
-            <div class="alert alert-info unit-card">
-                <h3>
-                    @unit.ProfName
-                    <button class="btn btn-danger" @onclick="() => ((List<Unit>)addingSubject.Units).Remove(unit)">Delete</button>
-                </h3>
-                @foreach (var day in unit.DayOfUnit)
-                {
-                    <span>(@BeutifyDay(day))</span>
-                }
-            </div>
-        }
+                </tr>
+                <tr>
+                    <td>10</td>
+                    <td>@tableItems[0,1]</td>
+                    <td>@tableItems[1,1]</td>
+                    <td>@tableItems[2,1]</td>
+                    <td>@tableItems[3,1]</td>
+                    <td>@tableItems[4,1]</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>13</td>
+                    <td>@tableItems[0,2]</td>
+                    <td>@tableItems[1,2]</td>
+                    <td>@tableItems[2,2]</td>
+                    <td>@tableItems[3,2]</td>
+                    <td>@tableItems[4,2]</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>15</td>
+                    <td>@tableItems[0,3]</td>
+                    <td>@tableItems[1,3]</td>
+                    <td>@tableItems[2,3]</td>
+                    <td>@tableItems[3,3]</td>
+                    <td>@tableItems[4,3]</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>17</td>
+                    <td>@tableItems[0,4]</td>
+                    <td>@tableItems[1,4]</td>
+                    <td>@tableItems[2,4]</td>
+                    <td>@tableItems[3,4]</td>
+                    <td>@tableItems[4,4]</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+        <button class="btn btn-danger btn-lg" @onclick="btnBackClicked">Back</button>
     }
     else
     {
-        @if (ShowAddSubject)
+        @if (ShowAddUnits)
         {
-            <input class="form-control-lg" type="text" @bind="@SubjectName" placeholder="Subject Name.." />
-            <button @onclick="btnAddUnitsClicked" class="btn btn-primary">Add Units</button>
+            <h1>Add Units For @SubjectName</h1>
+            <button @onclick="btnCompleteClicked" class="btn btn-success btn-lg">
+                Complete
+            </button>
+            <br />
+
+            <div class="form-control add-unit-card">
+                <h2>New Unit</h2>
+                <input @bind="addingUnit.ProfName" class="form-control-lg" type="text" placeholder="Proffesor Name.." />
+                <br /><br />
+                <div class="form-control">
+                    <label class="form-label">Day:</label>
+                    <select class="form-select" @bind="SelectedDay">
+                        <option value="@(-1)">Select Day</option>
+                        <option value="@(0)">Saturday</option>
+                        <option value="@(1)">Sunday</option>
+                        <option value="@(2)">Monday</option>
+                        <option value="@(3)">Tuesday</option>
+                        <option value="@(4)">Wednesday</option>
+                    </select><br />
+
+                    <label class="form-label">Hour:</label>
+                    <select class="form-select" @bind="SelectedHour">
+                        <option value="@(-1)">Select Hour</option>
+                        <option value="@(0)">8</option>
+                        <option value="@(1)">10</option>
+                        <option value="@(2)">13</option>
+                        <option value="@(3)">15</option>
+                        <option value="@(4)">17</option>
+                    </select>
+                    <br />
+                    <button @onclick="btnAddDayClicked" class="btn btn-danger">Add Day</button>
+                    <hr />
+                    @foreach (var day in addingUnit.DayOfUnit)
+                    {
+                        <button class="btn btn-warning" @onclick="() => ((List<UnitDay>)addingUnit.DayOfUnit).Remove(day)">@(BeutifyDay(day))</button>
+                    }
+                </div>
+                <br />
+                <button class="btn btn-success" @onclick="btnAddUnitClicked">Add Unit</button>
+            </div>
+
+            <hr />
+            foreach (var unit in addingSubject.Units)
+            {
+                <div class="alert alert-info unit-card">
+                    <h3>
+                        @unit.ProfName
+                        <button class="btn btn-danger" @onclick="() => ((List<Unit>)addingSubject.Units).Remove(unit)">Delete</button>
+                    </h3>
+                    @foreach (var day in unit.DayOfUnit)
+                    {
+                        <span>(@BeutifyDay(day))</span>
+                    }
+                </div>
+            }
         }
         else
         {
-            <button @onclick="btnAddSubClicked" class="btn btn-success">
-                Add a subject
-            </button>
-            <button @onclick="btnStartSelectionClicked" class="btn btn-primary">
-                Start Selection
-            </button>
-            <br />
-            <hr />
-            <br />
-            foreach (var subject in subjects)
+            @if (ShowAddSubject)
             {
-                <div class="form-control subject-card">
-                    <h3>
-                        Subject : @subject.SubjectName
-                        <button class="btn btn-danger" @onclick="() => subjects.Remove(subject)">Delete</button>
-                    </h3>
+                <input class="form-control-lg" type="text" @bind="@SubjectName" placeholder="Subject Name.." />
+                <button @onclick="btnAddUnitsClicked" class="btn btn-primary">Add Units</button>
+            }
+            else
+            {
+                <button @onclick="btnAddSubClicked" class="btn btn-success">
+                    Add a subject
+                </button>
+                <button @onclick="btnStartSelectionClicked" class="btn btn-primary">
+                    Start Selection
+                </button>
+                <br />
+                <hr />
+                <br />
+                @if (subjects.Any())
+                {
+                    <button @onclick="SaveToCache" class="btn btn-success">
+                        Save
+                    </button>
+                    <button @onclick="ResetSubjects" class="btn btn-danger">
+                        Delete All
+                    </button>
+                }
+                <button @onclick="() => { LoadScreen=true;}" class="btn btn-primary">
+                    Load
+                </button>
+                foreach (var subject in subjects)
+                {
+                    <div class="form-control subject-card">
+                        <h3>
+                            Subject : @subject.SubjectName
+                            <button class="btn btn-danger" @onclick="() => subjects.Remove(subject)">Delete</button>
+                        </h3>
 
-                    <div class="form-control">
-                        <h4>Units :</h4><br />
-                        @foreach (var unit in subject.Units)
-                        {
-                            <div class="alert alert-primary unit-card">
-                                <h3>@unit.ProfName</h3>
-                                @foreach (var day in unit.DayOfUnit)
-                                {
-                                    <span>(@BeutifyDay(day))</span>
-                                }
-                            </div>
-                        }
+                        <div class="form-control">
+                            <h4>Units :</h4><br />
+                            @foreach (var unit in subject.Units)
+                            {
+                                <div class="alert alert-primary unit-card">
+                                    <h3>@unit.ProfName</h3>
+                                    @foreach (var day in unit.DayOfUnit)
+                                    {
+                                        <span>(@BeutifyDay(day))</span>
+                                    }
+                                </div>
+                            }
+                        </div>
                     </div>
-                </div>
+                }
             }
         }
     }
@@ -190,6 +229,7 @@ else
     bool ShowAddSubject = false;
     bool ShowAddUnits = false;
     bool SelectionStarted = false;
+    bool LoadScreen = false;
     string SubjectName = "";
     int SelectedDay = -1;
     int SelectedHour = -1;
@@ -197,9 +237,99 @@ else
     Unit addingUnit;
     List<Subject> subjects = new List<Subject>();
     string[,] tableItems = new string[5, 5];
+    List<SaveItem> SavedItems = new List<SaveItem>();
 
     IEnumerable<IEnumerable<Unit>> UnitGroups;
     int unitGroupPage = 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadFromCache();
+        await InitLoadToScreen();
+        await base.OnInitializedAsync();
+    }
+
+    public void LoadASave(int id)
+    {
+        var save = SavedItems.FirstOrDefault(m => m.Id == id);
+        if (save == null)
+        {
+            return;
+        }
+
+        subjects = save.Subjects;
+
+        LoadScreen = false;
+    }
+
+    public async Task DeleteASave(int id)
+    {
+        SavedItems = SavedItems.Where(m => m.Id != id).ToList();
+        await SaveAllToCache();
+        await LoadFromCache();
+    }
+
+    public void ResetSubjects()
+    {
+        subjects = new List<Subject>();
+    }
+
+    public async void SaveToCache()
+    {
+        try
+        {
+
+            string name = await JsRuntime.InvokeAsync<string>("prompt", "name to save:");
+
+            int id = 1;
+            if (SavedItems.Any())
+            {
+                id = SavedItems.Max(m => m.Id) + 1;
+            }
+            SaveItem saveItem = new SaveItem()
+                {
+                    Id = id,
+                    Name = name,
+                    Subjects = subjects
+                };
+
+            SavedItems.Add(saveItem);
+
+            await SaveAllToCache();
+            await LoadFromCache();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+    }
+
+    public async Task SaveAllToCache()
+    {
+        await _localstorage.SetItemAsync("SavedSubjects", SavedItems);
+    }
+
+
+    public async Task LoadFromCache()
+    {
+        SavedItems = await _localstorage.GetItemAsync<List<SaveItem>>("SavedSubjects");
+        if (SavedItems == null)
+        {
+            SavedItems = new List<SaveItem>();
+        }
+    }
+
+    public async Task InitLoadToScreen()
+    {
+        if (SavedItems.Any())
+        {
+            subjects = SavedItems.Last().Subjects;
+        }
+        else
+        {
+            subjects = new List<Subject>();
+        }
+    }
 
     public void btnAddSubClicked()
     {
@@ -377,4 +507,6 @@ else
 
         return result;
     }
+
+
 }
