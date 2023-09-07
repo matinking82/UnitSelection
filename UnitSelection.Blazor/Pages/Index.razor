@@ -244,9 +244,9 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        await base.OnInitializedAsync();
         await LoadFromCache();
         await InitLoadToScreen();
-        await base.OnInitializedAsync();
     }
 
     public void LoadASave(int id)
@@ -254,6 +254,7 @@ else
         var save = SavedItems.FirstOrDefault(m => m.Id == id);
         if (save == null)
         {
+            LoadScreen = false;
             return;
         }
 
